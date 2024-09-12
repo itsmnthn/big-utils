@@ -13,4 +13,4 @@ npm install @itsmnthn/big-utils
 bun add @itsmnthn/big-utils
 ```
 
-[Click here to check out TSDocs.dev for the full documentation](https://big-utils.github.io/)
+[Click here to check out TSDocs.dev for the full documentation](https://big-utils.pages.dev/)

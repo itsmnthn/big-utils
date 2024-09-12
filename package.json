@@ -1,0 +1,63 @@
+{
+  "name": "@itsmnthn/big-utils",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Utils for BigInt manipulation and formatting for DeFi/Blockchain applications(DAPPS).",
+  "author": "Manthankumar Satani<satanimanthan@gmail.com>",
+  "license": "ISC",
+  "homepage": "https://github.com/itsmnthn/big-utils#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itsmnthn/big-utils.git",
+    "directory": "."
+  },
+  "bugs": {
+    "url": "https://github.com/itsmnthn/big-utils/issues"
+  },
+  "keywords": [
+    "bigint",
+    "dapp-utils",
+    "bigint-utils",
+    "bigint-formatting",
+    "bigint-manipulation",
+    "bigint-conversion",
+    "bigint-scale",
+    "bigint-unscale"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": "^16.11.0 || ^17.0.0 || ^18.0.0 || ^20.0.0"
+  },
+  "scripts": {
+    "build": "unbuild",
+    "stub": "unbuild --stub",
+    "test": "vitest --run",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "release": "bumpp package.json",
+    "prepare": "husky || true"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^3.5.1",
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "bumpp": "^9.5.2",
+    "eslint": "^9.10.0",
+    "husky": "^9.1.6",
+    "typescript": "latest",
+    "unbuild": "latest",
+    "vitest": "latest"
+  }
+}

@@ -5,7 +5,7 @@
   "packageManager": "pnpm@9.10.0",
   "description": "Utils for BigInt manipulation and formatting for DeFi/Blockchain applications(DAPPS).",
   "author": "Manthankumar Satani<satanimanthan@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "homepage": "https://github.com/itsmnthn/big-utils#readme",
   "repository": {
     "type": "git",

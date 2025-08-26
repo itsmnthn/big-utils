@@ -1,6 +1,7 @@
 import { expect, it } from 'vitest'
 
-import { scale, setAlwaysRoundDown } from './scale'
+import { ROUND_MODES } from '../rounding'
+import { scale } from './scale'
 
 it('converts number to unit of a given length', () => {
   expect(scale(69, 1)).toMatchInlineSnapshot('690n')
@@ -31,7 +32,7 @@ it('decimals === 0', () => {
   expect(scale('12301000000000000020000.123', 0)).toMatchInlineSnapshot('12301000000000000020000n')
   expect(scale('12301000000000000020000.5', 0)).toMatchInlineSnapshot('12301000000000000020001n')
   expect(scale('99999999999999999999999.5', 0)).toMatchInlineSnapshot('100000000000000000000000n')
-  expect(scale('', 0)).toMatchInlineSnapshot('0n')
+  expect(() => scale('', 0)).toThrow(/invalid input/i)
   expect(scale('0', 0)).toMatchInlineSnapshot('0n')
   expect(scale('0', 18)).toMatchInlineSnapshot('0n')
 })
@@ -86,8 +87,6 @@ it('decimals > fraction length with always round down', () => {
   expect(scale(69.9, 0)).toMatchInlineSnapshot('70n')
   expect(scale(69.23521, 0)).toMatchInlineSnapshot('69n')
   expect(scale(69.23521, 2)).toMatchInlineSnapshot('6924n')
-  setAlwaysRoundDown(true)
-  expect(scale(69.9, 0)).toMatchInlineSnapshot('69n')
-  expect(scale(69.23521, 2)).toMatchInlineSnapshot('6923n')
-  setAlwaysRoundDown(true)
+  expect(scale(69.9, 0, ROUND_MODES.TRUNC)).toMatchInlineSnapshot('69n')
+  expect(scale(69.23521, 2, ROUND_MODES.TRUNC)).toMatchInlineSnapshot('6923n')
 })

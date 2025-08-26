@@ -2,7 +2,7 @@
 
 Utils for BigInt manipulation and formatting for DeFi/Blockchain applications(DAPPS).
 
-**ESM:** 50.77 kB &nbsp;│&nbsp; **gzip**: 13.81 kB 
+**ESM:** 50.77 kB &nbsp;│&nbsp; **gzip**: 13.81 kB
 <br>
 **CJS:** 52.37 kB &nbsp;│&nbsp; **gzip**: 14.07 kB
 
@@ -20,16 +20,24 @@ bun add @itsmnthn/big-utils@latest
 ```typescript
 import {
   // Core math functions
-  bigAbs, bigPow10, bigGcd,
+  bigAbs,
+  bigGcd,
+  bigLog2Scaled,
 
   // Advanced arithmetic
-  bigMulDivTrunc, bigSqrtScaled, bigLog2Scaled,
-
+  bigMulDivTrunc,
+  bigPow10,
   // Scaling & formatting
-  bigScale, bigUnscale, formatWithComma,
+  bigScale,
 
+  bigSqrtScaled,
+  bigUnscale,
   // DeFi utilities
-  calcTotalPrice, calcUnitPrice, formatAmount
+  calcTotalPrice,
+
+  calcUnitPrice,
+  formatAmount,
+  formatWithComma,
 } from '@itsmnthn/big-utils'
 
 // Calculate token price with 18 decimals

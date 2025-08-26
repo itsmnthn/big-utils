@@ -1,12 +1,9 @@
 import type { AnyNumber } from './rounding'
 import { bigPow10 } from '../core'
 import { bigScale } from '../scaling/scale'
+import { BIG_ONE, BIG_ZERO } from '../utils/zro'
 import { bigMulDivRound, bigMulDivTrunc } from './fixed-point'
 import { ROUND_MODES } from './rounding'
-
-/** BigInt constants (verbosely named to aid readability). */
-const BIG_ZERO = BigInt(0)
-const BIG_ONE = BigInt(1)
 
 /**
  * Approximate log2(x) for scaled x. Result returned at `scale`.

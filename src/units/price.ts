@@ -1,7 +1,6 @@
 import { bigMulDivTrunc } from '../arithmetic/index'
 import { bigAbs, bigPow10 } from '../core/index'
-
-const BIG_ZERO = BigInt(0)
+import { BIG_ZERO } from '../utils/zro'
 
 /**
  * Calculates the total price from the number of units and the price per unit.

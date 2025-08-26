@@ -1,11 +1,7 @@
 import type { BigRounding } from './rounding'
 import { bigAbs, bigGcd, bigPow10 } from '../core/index'
+import { BIG_ONE, BIG_TWO, BIG_ZERO } from '../utils/zro'
 import { bigDivRound, ROUND_MODES } from './rounding'
-
-/** BigInt constants (verbosely named to aid readability). */
-const BIG_ZERO = BigInt(0)
-const BIG_ONE = BigInt(1)
-const BIG_TWO = BigInt(2)
 
 /**
  * Compute (a * b) / d with truncation.

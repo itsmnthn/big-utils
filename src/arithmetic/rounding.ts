@@ -1,4 +1,5 @@
 import { bigAbs } from '../core/index'
+import { BIG_ONE, BIG_TWO, BIG_ZERO, NEGATIVE_BIG_ONE } from '../utils/zro'
 
 /** User-facing input accepted by most functions. */
 export type AnyNumber = bigint | string | number
@@ -43,12 +44,6 @@ export const ROUND_MODES = {
 export type Rounding = (typeof ROUND_MODES)[keyof typeof ROUND_MODES]
 export type BigRounding = Rounding
 export type GridRounding = Rounding
-
-/** BigInt constants (verbosely named to aid readability). */
-const BIG_ZERO = BigInt(0)
-const BIG_ONE = BigInt(1)
-const NEGATIVE_BIG_ONE = BigInt(-1)
-const BIG_TWO = BigInt(2)
 
 /**
  * Floor division ⌊a / d⌋ (toward -∞).

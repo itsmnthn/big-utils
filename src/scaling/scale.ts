@@ -1,9 +1,7 @@
 import type { AnyNumber, BigRounding } from '../arithmetic/rounding'
 import { bigDivRound, ROUND_MODES } from '../arithmetic/rounding'
-import { bigAbs, bigPow10 } from '../core'
-
-/** BigInt constants (verbosely named to aid readability). */
-const BIG_ZERO = BigInt(0)
+import { bigAbs, bigPow10 } from '../core/index'
+import { BIG_ZERO } from '../utils/zro'
 
 /**
  * Parse a decimal and scale it to integer form.

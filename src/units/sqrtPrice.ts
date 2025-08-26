@@ -1,9 +1,7 @@
 import type { AnyNumber, BigRounding } from '../arithmetic/index'
 import { bigMulDivRound, ROUND_MODES } from '../arithmetic/index'
 import { bigPow10 } from '../core/index'
-
-const BIG_ZERO = BigInt(0)
-const BIG_ONE = BigInt(1)
+import { BIG_ONE, BIG_ZERO } from '../utils/zro'
 
 // ===================================================================================
 // Price <-> SqrtPrice Conversion

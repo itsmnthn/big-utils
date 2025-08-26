@@ -1,6 +1,5 @@
 import { bigAbs } from '../core/index'
-
-const ZERO = BigInt(0)
+import { BIG_ZERO } from '../utils/zro'
 
 /**
  * Checks if the given value is a multiple of the specified minimum value.
@@ -28,9 +27,9 @@ export function isMultipleOfMinimum(value: string | bigint, minimum: string | bi
   // 2. Check for divisibility using the modulo operator.
   // 3. Ensure the value is at least as large as the minimum (makes intent clear).
   return (
-    absValue !== ZERO
-    && absMinimum !== ZERO
-    && absValue % absMinimum === ZERO
+    absValue !== BIG_ZERO
+    && absMinimum !== BIG_ZERO
+    && absValue % absMinimum === BIG_ZERO
     && absValue >= absMinimum
   )
 }
@@ -52,8 +51,8 @@ export function truncateToMultiple(value: string | bigint, minimum: string | big
   const val = BigInt(value)
   const min = BigInt(minimum)
 
-  if (val === 0n || min === 0n) {
-    return 0n
+  if (val === BIG_ZERO || min === BIG_ZERO) {
+    return BIG_ZERO
   }
 
   const remainder = val % min

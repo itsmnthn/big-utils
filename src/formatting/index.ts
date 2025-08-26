@@ -1,5 +1,6 @@
 import { bigAbs } from '../core/index'
 import { scale, unScale } from '../scaling/index'
+import { BIG_ZERO } from '../utils/zro'
 
 /**
  * Compact number formatter using Intl.NumberFormat with a 10k cutoff.
@@ -176,8 +177,7 @@ export function shortenDecimals(value: string | number, decimals = 3, minNum = f
   return s === '-0' ? '0' : s
 }
 
-const ZERO = BigInt(0)
-export const ZERO_FORMATTED = { base: ZERO, formatted: '0', display: '0' }
+export const ZERO_FORMATTED = { base: BIG_ZERO, formatted: '0', display: '0' }
 
 export interface FormattedAmount {
   base: bigint

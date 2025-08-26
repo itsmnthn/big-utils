@@ -2,8 +2,7 @@ import type { AnyNumber } from '../arithmetic/index'
 import { bigMulDivTrunc } from '../arithmetic/index'
 import { bigPow10 } from '../core/index'
 import { bigScale } from '../scaling/index'
-
-const BIG_ZERO = BigInt(0)
+import { BIG_ZERO } from '../utils/zro'
 
 // A percentage or multiplier is internally represented with 4 decimals of precision.
 // e.g., 1% = 10000n, 2.5% = 25000n, 100% = 1000000n

@@ -1,8 +1,4 @@
-/** BigInt constants (verbosely named to aid readability). */
-const BIG_ZERO = BigInt(0)
-const BIG_TEN = BigInt(10)
-/** Maximum supported exponent for 10^k. */
-const POW10_MAX = BigInt(2000)
+import { BIG_TEN, BIG_ZERO, POW10_MAX } from '../utils/zro'
 
 /**
  * Absolute value for BigInt.

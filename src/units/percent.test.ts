@@ -1,57 +1,163 @@
-import { expect, it } from 'vitest'
-import { calcPercentage, calcPercentValue, decreaseByPercentage, increaseByPercentage } from './percent'
+// percent.spec.ts
+import { describe, expect, it } from 'vitest'
+import { bigScale } from '../scaling/index'
+import {
+  calcPercentFrom,
+  calcPercentOf,
+  decreaseByPercent,
+  divideByFactor,
+  increaseByPercent,
+  multiplyByFactor,
+} from './percent'
 
-it('calc percent of the given value', () => {
-  expect(calcPercentValue('100', 10, 2)).toMatchInlineSnapshot('10n')
-  expect(calcPercentValue('100', 25, 2)).toMatchInlineSnapshot('25n')
-  expect(calcPercentValue(BigInt(125e9), 50, 9)).toMatchInlineSnapshot('62500000000n')
-  expect(calcPercentValue('1234567898765432123456789', 50, 18)).toMatchInlineSnapshot('617283949382716061728394n')
-  expect(calcPercentValue('1248933', 25.5, 6)).toMatchInlineSnapshot('318477n')
-  expect(calcPercentValue('1248933', 45.324624, 6)).toMatchInlineSnapshot('566074n')
-  expect(calcPercentValue(1000000, 60, 6)).toMatchInlineSnapshot('600000n')
-  expect(calcPercentValue(BigInt(100e18), 50, 18)).toMatchInlineSnapshot('50000000000000000000n')
-  expect(calcPercentValue(1e6, 0, 6)).toMatchInlineSnapshot('0n')
-  expect(calcPercentValue(50, 150, 0)).toMatchInlineSnapshot('75n')
-  expect(calcPercentValue(50, 1500000000000000, 0)).toMatchInlineSnapshot('750000000000000n')
-  expect(calcPercentValue(0, 0, 0)).toMatchInlineSnapshot('0n')
-  expect(calcPercentValue(0, 100, 0)).toMatchInlineSnapshot('0n')
+// =====================================================================
+// calcPercentOf
+// =====================================================================
+describe('calcPercentOf', () => {
+  it('calculates the correct percentage of a positive amount', () => {
+    // 25% of 200 (scaled to 8 decimals) should be 50
+    const amount = bigScale(200, 8)
+    const result = calcPercentOf(amount, 25)
+    expect(result).toBe(bigScale(50, 8))
+  })
+
+  it('calculates the correct percentage of a negative amount', () => {
+    // 10% of -123.45 should be -12.345
+    const amount = bigScale('-123.45', 8)
+    const result = calcPercentOf(amount, 10)
+    expect(result).toBe(bigScale('-12.345', 8))
+  })
+
+  it('handles zero inputs correctly', () => {
+    const amount = bigScale(100, 8)
+    expect(calcPercentOf(0n, 25)).toBe(0n)
+    expect(calcPercentOf(amount, 0)).toBe(0n)
+  })
+
+  it('handles fractional percentages', () => {
+    // 12.34% of 12345 should be 1523.373
+    const amount = bigScale(12345, 8)
+    const result = calcPercentOf(amount, 12.34)
+    expect(result).toBe(bigScale('1523.373', 8))
+  })
 })
 
-it('calc percentage of the second value from the main value', () => {
-  expect(calcPercentage('100', '10', 2)).toMatchInlineSnapshot('10')
-  expect(calcPercentage('100', '25', 2)).toMatchInlineSnapshot('25')
-  expect(calcPercentage(BigInt(125e9), '62500000000', 9)).toMatchInlineSnapshot('50')
-  expect(calcPercentage('1234567898765432123456789', '617283949382716061728394', 18)).toMatchInlineSnapshot('50') // 49.9999999999999999999999594999999190000006
-  expect(calcPercentage('1248933', '318477', 6)).toMatchInlineSnapshot('25.5')
-  expect(calcPercentage('1248933', 566074, 6)).toMatchInlineSnapshot('45.325') // 45.3246090863160794
-  expect(calcPercentage('1248933', 566074, 6, 5)).toMatchInlineSnapshot('45.32461') // 45.3246090863160794
-  expect(calcPercentage(1000000, 600000, 6)).toMatchInlineSnapshot('60')
-  expect(calcPercentage(BigInt(100e18), '50000000000000000000', 18)).toMatchInlineSnapshot('50')
-  expect(calcPercentage(10000000000, 10000000, 10)).toMatchInlineSnapshot('0.1')
-  expect(calcPercentage(50, 75, 0)).toMatchInlineSnapshot('150')
-  expect(calcPercentage(50, 750, 0)).toMatchInlineSnapshot('1500')
-  expect(calcPercentage(1e6, 0, 6)).toMatchInlineSnapshot('0')
-  expect(calcPercentage(0, 0, 6)).toMatchInlineSnapshot('0')
-  expect(calcPercentage(0, 100, 6)).toMatchInlineSnapshot('0')
+// =====================================================================
+// calcPercentFrom
+// =====================================================================
+describe('calcPercentFrom', () => {
+  it('calculates the correct percentage', () => {
+    // 50 is 25% of 200
+    const part = bigScale(50, 8)
+    const total = bigScale(200, 8)
+    const result = calcPercentFrom(part, total)
+    expect(result).toBe(bigScale(25, 4)) // Percentages are scaled to 4 decimals
+  })
+
+  it('handles part greater than total (>100%)', () => {
+    // 250 is 125% of 200
+    const part = bigScale(250, 6)
+    const total = bigScale(200, 6)
+    const result = calcPercentFrom(part, total)
+    expect(result).toBe(bigScale(125, 4))
+  })
+
+  it('handles negative parts', () => {
+    // -10 is -5% of 200
+    const part = bigScale(-10, 8)
+    const total = bigScale(200, 8)
+    const result = calcPercentFrom(part, total)
+    expect(result).toBe(bigScale(-5, 4))
+  })
+
+  it('handles zero inputs', () => {
+    expect(calcPercentFrom(0n, bigScale(10, 6))).toBe(0n)
+    expect(calcPercentFrom(bigScale(10, 6), 0n)).toBe(0n)
+  })
 })
 
-it('increase a number by given percentage', () => {
-  expect(increaseByPercentage('100', 10, 2)).toMatchInlineSnapshot('110n')
-  expect(increaseByPercentage('100', 25, 2)).toMatchInlineSnapshot('125n')
-  expect(increaseByPercentage('100', 0, 2)).toMatchInlineSnapshot('100n')
-  expect(increaseByPercentage('100', 0, 2)).toMatchInlineSnapshot('100n')
-  expect(increaseByPercentage(-100, 50, 9)).toMatchInlineSnapshot('-50n')
-  expect(increaseByPercentage(0, 50, 9)).toMatchInlineSnapshot('0n')
-  expect(increaseByPercentage(0, 0, 9)).toMatchInlineSnapshot('0n')
-  expect(increaseByPercentage(-0, 0, 9)).toMatchInlineSnapshot('0n')
+// =====================================================================
+// increaseByPercent / decreaseByPercent
+// =====================================================================
+describe('increaseByPercent', () => {
+  it('increases a positive amount by a percentage', () => {
+    // 1200 + 23% = 1476
+    const amount = bigScale(1200, 8)
+    const result = increaseByPercent(amount, 23)
+    expect(result).toBe(bigScale(1476, 8))
+  })
+
+  it('increases a negative amount by a percentage', () => {
+    // -1200 + 23% of -1200 = -1200 + (-276) = -1476
+    const amount = bigScale(-1200, 8)
+    const result = increaseByPercent(amount, 23)
+    expect(result).toBe(bigScale(-1476, 8))
+  })
+
+  it('returns the same amount for a 0% increase', () => {
+    const amount = bigScale('98765.4321', 8)
+    expect(increaseByPercent(amount, 0)).toBe(amount)
+  })
 })
 
-it('decease a number by given percentage', () => {
-  expect(decreaseByPercentage('100', 10, 2)).toMatchInlineSnapshot('90n')
-  expect(decreaseByPercentage('100', 25, 2)).toMatchInlineSnapshot('75n')
-  expect(decreaseByPercentage('100', 0, 2)).toMatchInlineSnapshot('100n')
-  expect(decreaseByPercentage(-100, 50, 9)).toMatchInlineSnapshot('-150n')
-  expect(decreaseByPercentage(0, 50, 9)).toMatchInlineSnapshot('0n')
-  expect(decreaseByPercentage(0, 0, 9)).toMatchInlineSnapshot('0n')
-  expect(decreaseByPercentage(-0, 0, 9)).toMatchInlineSnapshot('0n')
+describe('decreaseByPercent', () => {
+  it('decreases a positive amount by a percentage', () => {
+    // 1000 - 25% = 750
+    const amount = bigScale(1000, 8)
+    const result = decreaseByPercent(amount, 25)
+    expect(result).toBe(bigScale(750, 8))
+  })
+
+  it('decreases a negative amount by a percentage', () => {
+    // -200 - 10% of -200 = -200 - (-20) = -180
+    const amount = bigScale(-200, 8)
+    const result = decreaseByPercent(amount, 10)
+    expect(result).toBe(bigScale(-180, 8))
+  })
+
+  it('returns 0 when decreasing by 100%', () => {
+    const amount = bigScale(1000, 8)
+    expect(decreaseByPercent(amount, 100)).toBe(0n)
+  })
+
+  it('returns a negative value when decreasing by more than 100%', () => {
+    const amount = bigScale(1000, 8)
+    expect(decreaseByPercent(amount, 110)).toBe(bigScale(-100, 8))
+  })
+})
+
+// =====================================================================
+// multiplyByFactor / divideByFactor
+// =====================================================================
+describe('multiplyByFactor', () => {
+  it('multiplies an amount by a factor', () => {
+    const amount = bigScale(250, 8)
+    expect(multiplyByFactor(amount, 2.5)).toBe(bigScale(625, 8))
+    expect(multiplyByFactor(amount, 1)).toBe(amount)
+    expect(multiplyByFactor(amount, 0)).toBe(0n)
+  })
+
+  it('multiplies a negative amount by a factor', () => {
+    const amount = bigScale(-250, 8)
+    expect(multiplyByFactor(amount, 2)).toBe(bigScale(-500, 8))
+  })
+})
+
+describe('divideByFactor', () => {
+  it('divides an amount by a factor', () => {
+    const amount = bigScale(250, 8)
+    expect(divideByFactor(amount, 2.5)).toBe(bigScale(100, 8))
+    expect(divideByFactor(amount, 2)).toBe(bigScale(125, 8))
+  })
+
+  it('divides a negative amount by a factor', () => {
+    const amount = bigScale(-250, 8)
+    expect(divideByFactor(amount, 4)).toBe(bigScale(-62.5, 8))
+  })
+
+  it('throws an error for a non-positive divisor', () => {
+    const amount = bigScale(100, 8)
+    expect(() => divideByFactor(amount, 0)).toThrow(/positive/i)
+    expect(() => divideByFactor(amount, -2)).toThrow(/positive/i)
+  })
 })

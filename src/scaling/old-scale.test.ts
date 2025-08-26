@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest'
-
-import { scale, setAlwaysRoundDown } from './scale'
+import { ROUND_MODES } from '../arithmetic/rounding'
+import { scale, unScale, unScaleToBase } from './old-scale'
 
 it('converts number to unit of a given length', () => {
   expect(scale(69, 1)).toMatchInlineSnapshot('690n')
@@ -31,7 +31,7 @@ it('decimals === 0', () => {
   expect(scale('12301000000000000020000.123', 0)).toMatchInlineSnapshot('12301000000000000020000n')
   expect(scale('12301000000000000020000.5', 0)).toMatchInlineSnapshot('12301000000000000020001n')
   expect(scale('99999999999999999999999.5', 0)).toMatchInlineSnapshot('100000000000000000000000n')
-  expect(scale('', 0)).toMatchInlineSnapshot('0n')
+  expect(() => scale('', 0)).toThrow(/invalid input/i)
   expect(scale('0', 0)).toMatchInlineSnapshot('0n')
   expect(scale('0', 18)).toMatchInlineSnapshot('0n')
 })
@@ -86,8 +86,46 @@ it('decimals > fraction length with always round down', () => {
   expect(scale(69.9, 0)).toMatchInlineSnapshot('70n')
   expect(scale(69.23521, 0)).toMatchInlineSnapshot('69n')
   expect(scale(69.23521, 2)).toMatchInlineSnapshot('6924n')
-  setAlwaysRoundDown(true)
-  expect(scale(69.9, 0)).toMatchInlineSnapshot('69n')
-  expect(scale(69.23521, 2)).toMatchInlineSnapshot('6923n')
-  setAlwaysRoundDown(true)
+  expect(scale(69.9, 0, ROUND_MODES.TRUNC)).toMatchInlineSnapshot('69n')
+  expect(scale(69.23521, 2, ROUND_MODES.TRUNC)).toMatchInlineSnapshot('6923n')
+})
+
+it('converts value to number', () => {
+  expect(unScale(BigInt(69), 0)).toMatchInlineSnapshot('"69"')
+  expect(unScale(BigInt(69), 5)).toMatchInlineSnapshot('"0.00069"')
+  expect(unScale(BigInt(690), 1)).toMatchInlineSnapshot('"69"')
+  expect(unScale(BigInt(1300000), 5)).toMatchInlineSnapshot('"13"')
+  expect(unScale(BigInt('4200000000000'), 10)).toMatchInlineSnapshot('"420"')
+  expect(unScale(BigInt('20000000000'), 9)).toMatchInlineSnapshot('"20"')
+  expect(unScale(BigInt('40000000000000000000'), 18)).toMatchInlineSnapshot('"40"')
+  expect(unScale(BigInt('10000000000000'), 18)).toMatchInlineSnapshot('"0.00001"')
+  expect(unScale(BigInt(12345), 4)).toMatchInlineSnapshot('"1.2345"')
+  expect(unScale(BigInt(12345), 4)).toMatchInlineSnapshot('"1.2345"')
+  expect(unScale(BigInt('6942069420123456789123450000'), 18)).toMatchInlineSnapshot(
+    '"6942069420.12345678912345"',
+  )
+  expect(
+    unScale(BigInt('694212312312306942012345444446789123450000000000000000000000000000000'), 50),
+  ).toMatchInlineSnapshot('"6942123123123069420.1234544444678912345"')
+  // negative values
+  expect(unScale(BigInt(-690), 1)).toMatchInlineSnapshot('"-69"')
+  expect(unScale(BigInt(-1300000), 5)).toMatchInlineSnapshot('"-13"')
+  expect(unScale(BigInt('-4200000000000'), 10)).toMatchInlineSnapshot('"-420"')
+  expect(unScale(BigInt('-20000000000'), 9)).toMatchInlineSnapshot('"-20"')
+  expect(unScale(BigInt('-40000000000000000000'), 18)).toMatchInlineSnapshot('"-40"')
+  expect(unScale(BigInt(-12345), 4)).toMatchInlineSnapshot('"-1.2345"')
+  expect(unScale(BigInt(-12345), 4)).toMatchInlineSnapshot('"-1.2345"')
+  expect(unScale(BigInt('-6942069420123456789123450000'), 18)).toMatchInlineSnapshot(
+    '"-6942069420.12345678912345"',
+  )
+  expect(
+    unScale(BigInt('-694212312312306942012345444446789123450000000000000000000000000000000'), 50),
+  ).toMatchInlineSnapshot('"-6942123123123069420.1234544444678912345"')
+})
+
+it('converts value to base', () => {
+  expect(unScaleToBase(BigInt('69000300300000000000'), 18, 6)).toMatchInlineSnapshot('69000300n')
+  expect(unScaleToBase(BigInt('-69000300300000000000'), 18, 6)).toMatchInlineSnapshot('-69000300n')
+  expect(unScaleToBase(BigInt(69), 0, 0)).toMatchInlineSnapshot('69n')
+  expect(unScaleToBase(BigInt(-69), 0, 0)).toMatchInlineSnapshot('-69n')
 })

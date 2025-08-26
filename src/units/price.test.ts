@@ -1,32 +1,144 @@
-import { expect, it } from 'vitest'
+// amount.spec.ts
+import { describe, expect, it } from 'vitest'
+import { calcTotalPrice, calcUnitPrice, calcUnits } from './price'
 
-import { calcPrice, calcTotalPrice, calcUnits } from './price'
+const pow10 = (d: number) => 10n ** BigInt(d)
 
-it('calculate unit price from units and total price', () => {
-  expect(calcPrice(BigInt(2e6), BigInt(1e5), 6, 6)).toMatchInlineSnapshot('50000n')
-  expect(calcPrice(BigInt(100e18), BigInt(1e5), 18, 6)).toMatchInlineSnapshot('1000n')
-  expect(calcPrice(BigInt(-123e26), BigInt(1e5), 26, 6)).toMatchInlineSnapshot('813n')
-  expect(calcPrice(BigInt(-100e18), BigInt(1e5), 18, 6, true)).toMatchInlineSnapshot('-1000n')
-  expect(calcPrice('0', '0', 18, 6, true)).toMatchInlineSnapshot('0n')
+const PRICE_DECIMALS = [4, 6, 8, 10] as const
+const UNIT_DECIMALS = [6, 8, 10, 12, 18] as const
+
+// Base "human" counts (integer unit counts, not yet scaled)
+const UNIT_COUNTS = [1n, 2n, 17n, 1_234n, 98_765n, 1_000_000n]
+
+// Price integers (already at price-decimal scale in the math)
+// e.g., at 6dp, 4_535_356n means 4.535356
+const PRICE_INTS = [1n, 99n, 12_345n, 987_654n, 4_535_356n, 123_456_789n]
+
+// ------------------------------- calcTotalPrice -------------------------------
+describe('calcTotalPrice — correctness across scales & magnitudes', () => {
+  for (const ud of UNIT_DECIMALS) {
+    for (const pd of PRICE_DECIMALS) {
+      it(`unitDecimals=${ud}, priceDecimals=${pd}`, () => {
+        for (const a of UNIT_COUNTS) {
+          const U = a * pow10(ud)
+
+          for (const P of PRICE_INTS) {
+            // Expected total price at price scale: (U * P) / 10^ud = a * P (exact)
+            const expected = a * P
+
+            // Positive units
+            expect(calcTotalPrice(U, P, ud, pd)).toBe(expected)
+
+            // Negative units (allowed) → sign propagates to total
+            expect(calcTotalPrice(-U, P, ud, pd)).toBe(-expected)
+
+            // Zero short-circuits
+            expect(calcTotalPrice(0n, P, ud, pd)).toBe(0n)
+            expect(calcTotalPrice(U, 0n, ud, pd)).toBe(0n)
+          }
+        }
+      })
+    }
+  }
+
+  it('unitDecimals = 0 → throws', () => {
+    // As per current implementation: if unitDecimals === 0, function throws
+    expect(() => calcTotalPrice(1_000n, 123n, 0, 6)).toThrow(/must be a non-negative integer/i)
+    expect(() => calcTotalPrice(1n, 123n, 0, 6)).toThrow(/must be a non-negative integer/i)
+    expect(() => calcTotalPrice(1_000n, 123n, -1, 6)).toThrow(/must be a non-negative integer/i)
+    expect(() => calcTotalPrice(1n, 123n, -1, 6)).toThrow(/must be a non-negative integer/i)
+  })
 })
 
-it('calculate units from unit price and total price', () => {
-  expect(calcUnits(BigInt(1e5), BigInt(2e6))).toMatchInlineSnapshot('50000000000000000n')
-  expect(calcUnits('723400000', '2124000000', 6, 8)).toMatchInlineSnapshot('34058380n')
-  expect(calcUnits(BigInt(723400000e6), BigInt(21240000e6), 36, 18)).toMatchInlineSnapshot('34058380414312617702n')
-  expect(calcUnits('100000000', '1000000')).toMatchInlineSnapshot('100000000000000000000n')
-  expect(calcUnits('1000', '1200', 2, 2)).toMatchInlineSnapshot('83n')
-  expect(calcUnits('0', '0', 2, 2)).toMatchInlineSnapshot('0n')
+// ------------------------------- calcUnitPrice -------------------------------
+describe('calcUnitPrice — correctness across scales & magnitudes', () => {
+  for (const ud of UNIT_DECIMALS) {
+    for (const pd of PRICE_DECIMALS) {
+      it(`unitDecimals=${ud}, priceDecimals=${pd} (price is magnitude)`, () => {
+        for (const a of UNIT_COUNTS) {
+          const U = a * pow10(ud)
+
+          for (const P of PRICE_INTS) {
+            // Build a consistent total price: TP = total(U, P)
+            const TP = a * P // exact (see total test)
+            // Expect calcUnitPrice(TP, U) to return P (magnitude, always ≥ 0)
+            expect(calcUnitPrice(TP, U, ud, pd)).toBe(P)
+
+            // Negative inputs are absolutized internally → still P
+            expect(calcUnitPrice(-TP, U, ud, pd)).toBe(P)
+            expect(calcUnitPrice(TP, -U, ud, pd)).toBe(P)
+
+            // Zero short-circuits
+            expect(calcUnitPrice(0n, U, ud, pd)).toBe(0n)
+            expect(calcUnitPrice(TP, 0n, ud, pd)).toBe(0n)
+          }
+        }
+      })
+    }
+  }
+
+  it('unitDecimals = 0 → throws', () => {
+    expect(() => calcUnitPrice(123n, 456n, 0, 6)).toThrow(/must be a non-negative integer/i)
+  })
 })
 
-it('calculate total price from units and unit price', () => {
-  expect(calcTotalPrice('100', '12', 2, 2)).toMatchInlineSnapshot('12n')
-  expect(calcTotalPrice(BigInt(2223e17), '12', 18, 1)).toMatchInlineSnapshot('2667n')
-  expect(calcTotalPrice(BigInt(2223e17), '1200000', 18, 6)).toMatchInlineSnapshot('266760000n')
-  expect(calcTotalPrice(BigInt(2223e17), '12000000', 18, 6)).toMatchInlineSnapshot('2667600000n')
-  expect(calcTotalPrice(BigInt(20e9), BigInt(2e6), 9, 6)).toMatchInlineSnapshot('40000000n')
-  expect(calcTotalPrice('20', '2', 0, 0)).toMatchInlineSnapshot('40n')
-  expect(calcTotalPrice('-20', '2', 0, 0)).toMatchInlineSnapshot('40n')
-  expect(calcTotalPrice('20', '2', 1, 0)).toMatchInlineSnapshot('4n')
-  expect(calcTotalPrice('0', '0', 1, 0)).toMatchInlineSnapshot('0n')
+// -------------------------------- calcUnits ----------------------------------
+describe('calcUnits — correctness across scales & magnitudes', () => {
+  for (const ud of UNIT_DECIMALS) {
+    for (const pd of PRICE_DECIMALS) {
+      it(`unitDecimals=${ud}, priceDecimals=${pd}`, () => {
+        for (const a of UNIT_COUNTS) {
+          const U = a * pow10(ud)
+
+          for (const P of PRICE_INTS) {
+            // Build a consistent total price: TP = a * P
+            const TP = a * P
+
+            // Positive path → units recovered exactly
+            expect(calcUnits(TP, P, ud, pd)).toBe(U)
+
+            // Negative total price → negative units (unitPrice treated as magnitude)
+            expect(calcUnits(-TP, P, ud, pd)).toBe(-U)
+
+            // Zero short-circuits
+            expect(calcUnits(0n, P, ud, pd)).toBe(0n)
+            expect(calcUnits(TP, 0n, ud, pd)).toBe(0n)
+          }
+        }
+      })
+    }
+  }
+
+  it('unitDecimals = 0 → throws', () => {
+    expect(() => calcUnits(123n, 456n, 0, 6)).toThrow(/must be a non-negative integer/i)
+  })
+})
+
+// ----------------------------- Cross invariants ------------------------------
+describe('cross-function invariants (round trips)', () => {
+  for (const ud of UNIT_DECIMALS) {
+    for (const pd of PRICE_DECIMALS) {
+      it(`round-trips @ unitDecimals=${ud}, priceDecimals=${pd}`, () => {
+        for (const a of UNIT_COUNTS) {
+          const U = a * pow10(ud)
+
+          for (const P of PRICE_INTS) {
+            const TP = calcTotalPrice(U, P, ud, pd) // should be a*P
+
+            // unit price from (total, units) → P (magnitude)
+            expect(calcUnitPrice(TP, U, ud, pd)).toBe(P)
+
+            // units from (total, unit price) → U
+            expect(calcUnits(TP, P, ud, pd)).toBe(U)
+
+            // negative total → negative units
+            expect(calcUnits(-TP, P, ud, pd)).toBe(-U)
+
+            // negative units with positive price → negative total
+            expect(calcTotalPrice(-U, P, ud, pd)).toBe(-TP)
+          }
+        }
+      })
+    }
+  }
 })

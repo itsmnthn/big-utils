@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
-    "lib": ["ESNext"],
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM"],
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "strict": true,
     "strictNullChecks": true,

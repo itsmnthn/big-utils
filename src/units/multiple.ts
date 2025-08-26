@@ -1,5 +1,5 @@
-import { absBig } from './bigUtils'
-import { ZERO } from './zro'
+import { bigAbs } from '../core/index'
+import { BIG_ZERO } from '../utils/zro'
 
 /**
  * Checks if the given value is a multiple of the specified minimum value.
@@ -16,38 +16,48 @@ import { ZERO } from './zro'
  */
 export function isMultipleOfMinimum(value: string | bigint, minimum: string | bigint) {
   // (x != 0 && x % y == 0)
-  value = absBig(value)
-  minimum = absBig(minimum)
-
-  return value !== ZERO && minimum !== ZERO && value % minimum === ZERO && value >= minimum
-}
-
-/**
- * Returns the adjusted value to be a multiple of the minimum value.
- * Both `value` and `minimum` are expected to be strings representing numbers
- * with the same number of decimal places. The adjustment ensures that the returned
- * value is a multiple of the `minimum` and is less than or equal to the original `value`.
- *
- * @param {string} value - The value to adjust, should be in the same decimals as `minimum`.
- * @param {string} minimum - The minimum value to adjust against, should be in the same decimals as `value`.
- * @returns {string} - The adjusted value, in the same decimals as `value`, ensuring it's a multiple of `minimum`.
- *
- * @example
- * reduceByRemainder('123560', '10') // '123560'
- * reduceByRemainder('123560', '11') // '123552'
- */
-export function reduceByRemainder(value: string | bigint, minimum: string | bigint) {
-  // Convert strings to BigInt for calculation
   value = BigInt(value)
   minimum = BigInt(minimum)
 
-  if (value === ZERO || minimum === ZERO)
-    return ZERO
+  // Work with absolute values for the check
+  const absValue = bigAbs(value)
+  const absMinimum = bigAbs(minimum)
 
-  // Check if value is already a multiple of minimum
-  const remainder = value % minimum
-  if (remainder === ZERO)
-    return value
+  // 1. Ensure neither is zero to prevent division errors and invalid states.
+  // 2. Check for divisibility using the modulo operator.
+  // 3. Ensure the value is at least as large as the minimum (makes intent clear).
+  return (
+    absValue !== BIG_ZERO
+    && absMinimum !== BIG_ZERO
+    && absValue % absMinimum === BIG_ZERO
+    && absValue >= absMinimum
+  )
+}
 
-  return value - remainder
+/**
+ * Adjusts a value to the nearest multiple of a minimum value, rounding towards zero.
+ * This is equivalent to `(value / minimum) * minimum`.
+ *
+ * @param {string | bigint} value - The value to adjust.
+ * @param {string | bigint} minimum - The minimum value to adjust against.
+ * @returns {bigint} - The adjusted value, as a multiple of the minimum.
+ *
+ * @example
+ * truncateToMultiple('123560', '10') // 123560n
+ * truncateToMultiple('123560', '11') // 123552n
+ * truncateToMultiple('-17', '8')     // -16n
+ */
+export function truncateToMultiple(value: string | bigint, minimum: string | bigint): bigint {
+  const val = BigInt(value)
+  const min = BigInt(minimum)
+
+  if (val === BIG_ZERO || min === BIG_ZERO) {
+    return BIG_ZERO
+  }
+
+  const remainder = val % min
+
+  // The expression `val - remainder` is the mathematical definition
+  // of truncating division's result multiplied by the divisor.
+  return val - remainder
 }

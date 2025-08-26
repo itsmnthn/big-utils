@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { formatTime, getTimestampedID, range, shortenString } from '../src'
+import { formatTime, range, shortenString, trimTrailingZeros } from './misc'
+
+describe('range', () => {
+  it('generates range from n to n', () => {
+    expect(range(1, 5)).toEqual([1, 2, 3, 4, 5])
+    expect(range(10, 15)).toEqual([10, 11, 12, 13, 14, 15])
+    expect(range(100, 106, 2)).toEqual([100, 102, 104, 106])
+    expect(range(100, 109, 2)).toEqual([100, 102, 104, 106, 108])
+  })
+})
 
 describe('shortenString', () => {
   it('shorten string by 4 character from both side and concat with ...', () => {
@@ -10,12 +19,6 @@ describe('shortenString', () => {
   })
   it('shorten string with custom characters and concat with custom ellipse', () => {
     expect(shortenString('this should work like this', 4, 4, '---')).toEqual('this---this')
-  })
-})
-
-describe('getTimestampedID', () => {
-  it('random string from timestamp', () => {
-    expect(getTimestampedID()).toBeTypeOf('string')
   })
 })
 
@@ -34,11 +37,12 @@ describe('formatTime', () => {
   })
 })
 
-describe('range', () => {
-  it('generates range from n to n', () => {
-    expect(range(1, 5)).toEqual([1, 2, 3, 4, 5])
-    expect(range(10, 15)).toEqual([10, 11, 12, 13, 14, 15])
-    expect(range(100, 106, 2)).toEqual([100, 102, 104, 106])
-    expect(range(100, 109, 2)).toEqual([100, 102, 104, 106, 108])
-  })
+it('removes trailing zeros in fraction', () => {
+  expect(trimTrailingZeros('299.')).toMatchInlineSnapshot('"299"')
+  expect(trimTrailingZeros('1.69000')).toMatchInlineSnapshot('"1.69"')
+  expect(trimTrailingZeros('1000.3')).toMatchInlineSnapshot('"1000.3"')
+  expect(trimTrailingZeros(-100.324000)).toMatchInlineSnapshot('"-100.324"')
+
+  expect(trimTrailingZeros(100)).toMatchInlineSnapshot('"100"')
+  expect(trimTrailingZeros(-100)).toMatchInlineSnapshot('"-100"')
 })

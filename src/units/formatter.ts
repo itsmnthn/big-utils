@@ -1,8 +1,7 @@
 import { formatNumberCompact, formatWithComma, shortenDecimals } from '../formatter'
-import { scale } from './scale'
-import { unScale } from './unscale'
+import { scale, unScale } from './scales'
 
-export const ZERO = BigInt(0)
+const ZERO = BigInt(0)
 export const ZERO_FORMATTED = { base: ZERO, formatted: '0', display: '0' }
 
 export interface FormattedAmount {

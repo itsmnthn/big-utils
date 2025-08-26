@@ -1,89 +1,111 @@
-import { absBig } from './bigUtils'
-import { scale } from './scale'
-import { unScaleToBase } from './unscale'
-import { ZERO } from './zro'
+import { bigAbs, bigPow10 } from '../core'
+import { bigMulDivTrunc } from '../fixed-point'
 
-const precisionCatalyst = 6 // to avoid total loss of precision if the given decimals are not enough
+const BIG_ZERO = BigInt(0)
 
 /**
- * Calculates the unit price based on the number of units and total price.
- * @param noAbs pass `true` to allow -ve values for resulted unit price
- * @example
- * calcPrice(BigInt(2e6), BigInt(1e5), 6, 6) // 50000n
- */
-export function calcPrice(
-  units: string | bigint,
-  totalPrice: string | bigint,
-  unitDecimals = 18,
-  priceDecimals = 6,
-  noAbs = false,
-) {
-  units = BigInt(units)
-  totalPrice = BigInt(totalPrice)
-
-  if (units === ZERO || totalPrice === ZERO)
-    return ZERO
-
-  if (!noAbs) // in certain cases we want to allow -ve values for units e.g. if it's a debt
-    units = absBig(units)
-
-  // to avoid underflow and retain precision
-  const priceDecimalsFactor = priceDecimals + priceDecimals + unitDecimals + precisionCatalyst
-  return unScaleToBase(
-    scale(totalPrice, priceDecimalsFactor) / units,
-    priceDecimalsFactor,
-    unitDecimals,
-  )
-}
-
-/**
- * Calculates units based on the total price and number of units.
- * @example
- * calcUnits(BigInt(1e5), BigInt(2e6)) // 50000000000000000n
- * calcUnits('1000', '1200', 2, 2) // 83n === 0.83 * 10^2
- */
-export function calcUnits(
-  totalPrice: string | bigint,
-  unitPrice: string | bigint,
-  priceDecimals = 6,
-  unitDecimals = 18,
-) {
-  unitPrice = absBig(unitPrice)
-  totalPrice = absBig(totalPrice)
-  if (unitPrice === ZERO || totalPrice === ZERO)
-    return ZERO
-
-  const priceDecimalsFactor = priceDecimals + priceDecimals + unitDecimals + precisionCatalyst
-  return unScaleToBase(
-    scale(totalPrice, priceDecimalsFactor) / unitPrice,
-    priceDecimalsFactor,
-    unitDecimals,
-  )
-}
-
-/**
- * Calculates the total price based on the number of units and unit price.
- * @param noAbs pass `true` to allow -ve values for resulted total price
+ * Calculates the total price from the number of units and the price per unit.
+ * The result is always scaled to `priceDecimals`.
+ *
+ * Formula: totalPrice = (units * unitPrice) / 10^unitDecimals
+ *
+ * @param units The number of units, scaled by `unitDecimals`.
+ * @param unitPrice The price per unit, scaled by `priceDecimals`.
+ * @param unitDecimals The number of decimals for the `units` amount. Default is 8.
+ * @param _priceDecimals The number of decimals for `unitPrice` and the output. Default is 6.
+ *   essential parameter to prepare the inputs and interpret the output.
+ * @returns The total price, scaled by `priceDecimals`.
  *
  * @example
- * calcTotalPrice('100', '12', 2, 2) // 12n
- * BigInt(2223e17), '12000000', 18, 6) // 2667600000n
+ * // 1 APT (1e8) * $4.535356 (4535356 @ 6dp) = $4.535356
+ * calcTotalPrice(100000000n, 4535356n, 8, 6) // returns 4535356n
  */
 export function calcTotalPrice(
   units: string | bigint,
   unitPrice: string | bigint,
-  unitDecimals = 18,
-  priceDecimals = 6,
-  noAbs = false,
-) {
-  units = BigInt(units)
-  unitPrice = BigInt(unitPrice)
+  unitDecimals = 8,
+  _priceDecimals = 6,
+): bigint {
+  const u = BigInt(units) // Allow negative units
+  const p = bigAbs(BigInt(unitPrice)) // Price is always a positive magnitude
 
-  if (units === ZERO || unitPrice === ZERO)
-    return ZERO
+  if (u === BIG_ZERO || p === BIG_ZERO || unitDecimals === 0) {
+    return BIG_ZERO
+  }
 
-  if (!noAbs) // in certain cases we want to allow -ve values for units e.g. if it's a debt
-    units = absBig(units)
+  const divisor = bigPow10(unitDecimals)
+  return bigMulDivTrunc(u, p, divisor)
+}
 
-  return unScaleToBase(units * unitPrice, unitDecimals + priceDecimals, priceDecimals)
+/**
+ * Calculates the price per unit from the total price and number of units.
+ * The result is always scaled to `priceDecimals`.
+ *
+ * Formula: unitPrice = (totalPrice * 10^unitDecimals) / units
+ *
+ * @param totalPrice The total price, scaled by `priceDecimals`.
+ * @param units The number of units, scaled by `unitDecimals`.
+ * @param unitDecimals The number of decimals for the `units` amount. Default is 8.
+ * @param _priceDecimals The number of decimals for `unitPrice` and the output. Default is 6.
+ *   essential parameter to prepare the inputs and interpret the output.
+ * @returns The price per unit, scaled by `priceDecimals`.
+ *
+ * @example
+ * // $10.00 total price / 2 units = $5.00 unit price
+ * calcUnitPrice('1000', '200000000', 2, 8) // returns 500n
+ */
+export function calcUnitPrice(
+  totalPrice: string | bigint,
+  units: string | bigint,
+  unitDecimals = 8,
+  _priceDecimals = 6,
+): bigint {
+  // Unit price is a magnitude, so we use the absolute values.
+  const tp = bigAbs(BigInt(totalPrice))
+  const u = bigAbs(BigInt(units))
+
+  if (tp === BIG_ZERO || u === BIG_ZERO || unitDecimals === 0) {
+    return BIG_ZERO
+  }
+
+  // The priceDecimals for totalPrice and the output unitPrice cancel out,
+  // so we only need to scale by the unitDecimals to normalize the values.
+  const multiplier = bigPow10(unitDecimals)
+  return bigMulDivTrunc(tp, multiplier, u)
+}
+
+/**
+ * Calculates the number of units from the total price and price per unit.
+ * The result is always scaled to `unitDecimals`.
+ *
+ * Formula: units = (totalPrice * 10^unitDecimals) / unitPrice
+ *
+ * @param totalPrice The total price, scaled by `priceDecimals`.
+ * @param unitPrice The price per unit, scaled by `priceDecimals`.
+ * @param unitDecimals The number of decimals for the output. Default is 8.
+ * @param _priceDecimals The number of decimals for `unitPrice` and the output. Default is 6.
+ *   essential parameter to prepare the inputs and interpret the output.
+ * @returns The number of units, scaled by `unitDecimals`.
+ *
+ * @example
+ * // $12.00 total price / $0.80 unit price = 15 units
+ * calcUnits('12000000', '800000', 6, 8) // returns 1500000000n
+ */
+export function calcUnits(
+  totalPrice: string | bigint,
+  unitPrice: string | bigint,
+  unitDecimals = 8,
+  _priceDecimals = 6,
+): bigint {
+  const tp = BigInt(totalPrice) // Allow negative total price
+  const up = bigAbs(BigInt(unitPrice)) // Price is always a positive magnitude
+
+  if (tp === BIG_ZERO || up === BIG_ZERO || unitDecimals === 0) {
+    return BIG_ZERO
+  }
+
+  // The priceDecimals for totalPrice and unitPrice cancel each other out.
+  // We only need to scale by the target unitDecimals.
+  const multiplier = bigPow10(unitDecimals)
+  return bigMulDivTrunc(tp, multiplier, up)
 }

@@ -1,7 +1,6 @@
-import type { AnyNumber, BigRounding } from './rounding'
-import { bigPow10 } from './core'
-import { bigMulDivRound } from './fixed-point'
-import { ROUND_MODES } from './rounding'
+import type { AnyNumber, BigRounding } from '../arithmetic/index'
+import { bigMulDivRound, ROUND_MODES } from '../arithmetic/index'
+import { bigPow10 } from '../core/index'
 
 const BIG_ZERO = BigInt(0)
 const BIG_ONE = BigInt(1)

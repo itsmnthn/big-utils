@@ -48,6 +48,45 @@ export function getTimestampedID() {
 }
 
 /**
+ * Removes trailing zeros from the fractional part of a numeric string or number.
+ *
+ * - If the input has no decimal point, returns the string representation unchanged.
+ * - If the fractional part is all zeros, removes the decimal point as well.
+ * - Otherwise, trims only the unnecessary trailing zeros after the decimal.
+ *
+ * @param {string | number} value - The numeric value or string to process.
+ * @returns {string} The value as a string with trailing zeros in the fractional part removed.
+ *
+ * @example
+ * trimTrailingZeros(100.0000)      // '100'
+ * trimTrailingZeros(0.1000)        // '0.1'
+ * trimTrailingZeros('100.1234')    // '100.1234'
+ * trimTrailingZeros('299.')        // '299'
+ * trimTrailingZeros(-100.324000)   // '-100.324'
+ * trimTrailingZeros(100)           // '100'
+ */
+export function trimTrailingZeros(value: string | number): string {
+  value = value.toString()
+  const dotIndex = value.indexOf('.')
+
+  // If there's no decimal point, return the original string representation
+  if (dotIndex === -1)
+    return value
+
+  // Find the index where trailing zeros stop
+  let endIndex = value.length - 1
+  while (value[endIndex] === '0')
+    endIndex--
+
+  // If all characters after the dot are zeros, omit the dot as well
+  if (endIndex === dotIndex)
+    return value.substring(0, dotIndex)
+
+  // Return the string up to the last non-zero character
+  return value.substring(0, endIndex + 1)
+}
+
+/**
  * Formats a time object to a string with days, hours, minutes, and seconds.
  *
  * @param time - The time object with days, hours, minutes, and seconds.

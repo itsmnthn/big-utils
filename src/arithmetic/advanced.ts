@@ -1,8 +1,8 @@
 import type { AnyNumber } from './rounding'
-import { bigPow10 } from './core'
+import { bigPow10 } from '../core'
+import { bigScale } from '../scaling/scale'
 import { bigMulDivRound, bigMulDivTrunc } from './fixed-point'
 import { ROUND_MODES } from './rounding'
-import { bigScale } from './scaling'
 
 /** BigInt constants (verbosely named to aid readability). */
 const BIG_ZERO = BigInt(0)

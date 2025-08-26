@@ -1,5 +1,5 @@
-import { bigAbs, bigPow10 } from '../core'
-import { bigMulDivTrunc } from '../fixed-point'
+import { bigMulDivTrunc } from '../arithmetic/index'
+import { bigAbs, bigPow10 } from '../core/index'
 
 const BIG_ZERO = BigInt(0)
 

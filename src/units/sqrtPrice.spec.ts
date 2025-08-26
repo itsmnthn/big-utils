@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ROUND_MODES } from './rounding'
+import { ROUND_MODES } from '../arithmetic/index'
 import { bigPriceFromSqrt, bigPriceFromSqrtQ64, bigPriceFromSqrtQ96 } from './sqrtPrice'
 
 // handy constants

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bigPow10 } from './core'
+import { bigPow10 } from '../core/index'
 import {
   bigDivScaled,
   bigMulDivRound,

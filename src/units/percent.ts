@@ -1,7 +1,7 @@
-import type { AnyNumber } from '../rounding'
-import { bigPow10 } from '../core'
-import { bigMulDivTrunc } from '../fixed-point'
-import { bigScale } from '../scaling'
+import type { AnyNumber } from '../arithmetic/index'
+import { bigMulDivTrunc } from '../arithmetic/index'
+import { bigPow10 } from '../core/index'
+import { bigScale } from '../scaling/index'
 
 const BIG_ZERO = BigInt(0)
 

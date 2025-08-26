@@ -1,4 +1,4 @@
-import { bigAbs } from '../core'
+import { bigAbs } from '../core/index'
 
 const ZERO = BigInt(0)
 

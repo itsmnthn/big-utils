@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest'
-import { ROUND_MODES } from '../rounding'
-import { scale, unScale, unScaleToBase } from './scales'
+import { ROUND_MODES } from '../arithmetic/rounding'
+import { scale, unScale, unScaleToBase } from './old-scale'
 
 it('converts number to unit of a given length', () => {
   expect(scale(69, 1)).toMatchInlineSnapshot('690n')

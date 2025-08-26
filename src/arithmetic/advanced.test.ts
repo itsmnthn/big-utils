@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { bigLog2Scaled, bigLogBaseScaled, bigPrecomputeBase } from './advanced'
-import { bigAbs, bigPow10 } from './core'
-import { bigScale } from './scaling'
+import { bigLog2Scaled, bigLogBaseScaled, bigPrecomputeBase } from '.'
+import { bigAbs, bigPow10 } from '../core'
+import { bigScale } from '../scaling/scale'
 
 /** Compare two scaled bigints within an absolute tolerance (in scaled units). */
 function expectClose(actual: bigint, expected: bigint, tol = 5n) {

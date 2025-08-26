@@ -1,6 +1,6 @@
 // percent.spec.ts
 import { describe, expect, it } from 'vitest'
-import { bigScale } from '../scaling'
+import { bigScale } from '../scaling/index'
 import {
   calcPercentFrom,
   calcPercentOf,
@@ -8,7 +8,7 @@ import {
   divideByFactor,
   increaseByPercent,
   multiplyByFactor,
-} from './percent' // ← adjust path
+} from './percent'
 
 // =====================================================================
 // calcPercentOf

@@ -1,6 +1,7 @@
-import type { BigRounding } from '../rounding'
-import { trimTrailingZeros } from '../formatter'
-import { bigRescale, bigScale, bigUnscale } from '../scaling'
+import type { BigRounding } from '../arithmetic/rounding'
+import { trimTrailingZeros } from '../utils/index'
+import { bigRescale } from './rescale'
+import { bigScale, bigUnscale } from './scale'
 
 /**
  * Scales a numeric value by multiplying it with 10 raised to the power of `decimals`, returning the result as a BigInt.

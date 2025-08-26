@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatTime, range, shortenString } from './misc'
+import { formatTime, range, shortenString, trimTrailingZeros } from './misc'
 
 describe('range', () => {
   it('generates range from n to n', () => {
@@ -35,4 +35,14 @@ describe('formatTime', () => {
     expect(formatTime({ days: 0, hours: -1, mins: -12, secs: 0 })).toEqual('')
     expect(formatTime({ days: 0, hours: -1, mins: -12, secs: 0 }, true)).toEqual('-1h 12m')
   })
+})
+
+it('removes trailing zeros in fraction', () => {
+  expect(trimTrailingZeros('299.')).toMatchInlineSnapshot('"299"')
+  expect(trimTrailingZeros('1.69000')).toMatchInlineSnapshot('"1.69"')
+  expect(trimTrailingZeros('1000.3')).toMatchInlineSnapshot('"1000.3"')
+  expect(trimTrailingZeros(-100.324000)).toMatchInlineSnapshot('"-100.324"')
+
+  expect(trimTrailingZeros(100)).toMatchInlineSnapshot('"100"')
+  expect(trimTrailingZeros(-100)).toMatchInlineSnapshot('"-100"')
 })

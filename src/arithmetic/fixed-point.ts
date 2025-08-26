@@ -1,5 +1,5 @@
 import type { BigRounding } from './rounding'
-import { bigAbs, bigGcd, bigPow10 } from './core'
+import { bigAbs, bigGcd, bigPow10 } from '../core/index'
 import { bigDivRound, ROUND_MODES } from './rounding'
 
 /** BigInt constants (verbosely named to aid readability). */

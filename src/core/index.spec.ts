@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bigAbs, bigClamp, bigGcd, bigMax, bigMin, bigPow10, bigSign } from './core'
+import { bigAbs, bigClamp, bigGcd, bigMax, bigMin, bigPow10, bigSign } from '.'
 
 const TEN = 10n
 

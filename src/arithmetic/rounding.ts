@@ -1,4 +1,4 @@
-import { bigAbs } from './core'
+import { bigAbs } from '../core/index'
 
 /** User-facing input accepted by most functions. */
 export type AnyNumber = bigint | string | number

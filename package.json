@@ -27,14 +27,14 @@
   ],
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
+      "import": "./dist/index.js",
       "require": "./dist/index.cjs"
-    }
+    },
+    "./package.json": "./package.json"
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
   "files": [
     "dist"
   ],
@@ -42,8 +42,8 @@
     "node": "^22.0.0"
   },
   "scripts": {
-    "build": "unbuild",
-    "stub": "unbuild --stub",
+    "build": "tsdown",
+    "stub": "tsdown --stub",
     "test": "vitest --run",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
@@ -58,8 +58,8 @@
     "bumpp": "^10.2.3",
     "eslint": "^9.34.0",
     "husky": "^9.1.7",
+    "tsdown": "latest",
     "typescript": "latest",
-    "unbuild": "latest",
     "vitest": "latest"
   }
 }

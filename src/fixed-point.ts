@@ -100,6 +100,8 @@ export function bigDivScaled(aScaled: bigint, bScaled: bigint, scale: number, mo
     throw new RangeError('bigDivScaled: division by zero')
   }
 
+  // aScaled * bigPow10(scale) before division, which could overflow for large values or large scales. Consider using the GCD reduction approach similar to bigMulDivRound.
+  // ? not targeting very very large values, so not a problem
   return bigMulDivRound(aScaled * bigPow10(scale), BIG_ONE, bScaled, mode)
 }
 

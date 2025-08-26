@@ -1,3 +1,4 @@
+import { bigAbs } from '../core'
 import { formatNumberCompact, formatWithComma, shortenDecimals } from '../formatter'
 import { scale, unScale } from './scales'
 
@@ -31,11 +32,12 @@ export function formatAmount(value: bigint | string, decimals: number, displayDe
  * @param value - The amount to format.
  * @param decimals - The number of decimals the amount is scaled by.
  * @param displayDecimals - The number of decimals to display.
- * @param minNum - Whether to display the minimum number.
+ * @param minNum - Whether to pad to the minimum number of fraction digits.
  * @param minValue - The minimum value to display the compact format.
  * @returns The formatted amount.
  * @example
- * formatAmountCompact('20000000000', 6, 9999, 3) // { base: 20000000000n, display: '20K', formatted: '20000' }
+ * formatAmountCompact('20000000000', 6, 3, true) // { base: 20000000000n, display: '20K', formatted: '20000' }
+ * formatAmountCompact('2', 6, 3, true) // { base: 2n, display: '< 0.001', formatted: '0.000002' }
  */
 export function formatAmountCompact(
   value: bigint | string,
@@ -47,7 +49,7 @@ export function formatAmountCompact(
   const base = BigInt(value)
   const valueUnScaled = unScale(value, decimals)
 
-  if (base > scale(minValue, decimals)) {
+  if (bigAbs(base) >= scale(minValue, decimals)) {
     return {
       base,
       display: shortenDecimals(formatNumberCompact(valueUnScaled), displayDecimals, minNum),
@@ -57,13 +59,14 @@ export function formatAmountCompact(
 
   let displayValue: string
 
-  if (base > scale(minValue, decimals)) {
-    // The compact formatter itself handles the number of decimals.
-    displayValue = formatNumberCompact(valueUnScaled, { maximumFractionDigits: displayDecimals })
+  // First, shorten/format the decimals, then add commas.
+  const shortened = shortenDecimals(valueUnScaled, displayDecimals, minNum)
+  // If the shortened value includes '<' or '>', it means the value is too small to be displayed in the compact format.
+  // In this case, we don't need to add commas.
+  if (shortened.includes('<') || shortened.includes('>')) {
+    displayValue = shortened
   }
   else {
-    // First, shorten/format the decimals, then add commas.
-    const shortened = shortenDecimals(valueUnScaled, displayDecimals, minNum)
     displayValue = formatWithComma(shortened)
   }
 

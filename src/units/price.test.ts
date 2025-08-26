@@ -41,10 +41,12 @@ describe('calcTotalPrice — correctness across scales & magnitudes', () => {
     }
   }
 
-  it('unitDecimals = 0 → returns 0n by design', () => {
-    // As per current implementation: if unitDecimals === 0, function returns 0n
-    expect(calcTotalPrice(1_000n, 123n, 0, 6)).toBe(0n)
-    expect(calcTotalPrice(0n, 123n, 0, 6)).toBe(0n)
+  it('unitDecimals = 0 → throws', () => {
+    // As per current implementation: if unitDecimals === 0, function throws
+    expect(() => calcTotalPrice(1_000n, 123n, 0, 6)).toThrow(/must be a non-negative integer/i)
+    expect(() => calcTotalPrice(1n, 123n, 0, 6)).toThrow(/must be a non-negative integer/i)
+    expect(() => calcTotalPrice(1_000n, 123n, -1, 6)).toThrow(/must be a non-negative integer/i)
+    expect(() => calcTotalPrice(1n, 123n, -1, 6)).toThrow(/must be a non-negative integer/i)
   })
 })
 
@@ -75,8 +77,8 @@ describe('calcUnitPrice — correctness across scales & magnitudes', () => {
     }
   }
 
-  it('unitDecimals = 0 → returns 0n by design', () => {
-    expect(calcUnitPrice(123n, 456n, 0, 6)).toBe(0n)
+  it('unitDecimals = 0 → throws', () => {
+    expect(() => calcUnitPrice(123n, 456n, 0, 6)).toThrow(/must be a non-negative integer/i)
   })
 })
 
@@ -107,8 +109,8 @@ describe('calcUnits — correctness across scales & magnitudes', () => {
     }
   }
 
-  it('unitDecimals = 0 → returns 0n by design', () => {
-    expect(calcUnits(123n, 456n, 0, 6)).toBe(0n)
+  it('unitDecimals = 0 → throws', () => {
+    expect(() => calcUnits(123n, 456n, 0, 6)).toThrow(/must be a non-negative integer/i)
   })
 })
 

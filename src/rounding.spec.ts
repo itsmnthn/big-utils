@@ -115,7 +115,7 @@ describe('bigDivRound — halfway/tie behavior (.5 of a unit)', () => {
 
     // Sanity: it's a tie
     const ar = (n % d) >= 0n ? (n % d) : -(n % d)
-    const ad = d >= 0n ? d >= 0n ? d : -d : -d
+    const ad = d >= 0n ? d : -d
     expect(ar * 2n === (ad >= 0n ? ad : -ad)).toBe(true)
 
     for (const [mode, expected] of Object.entries(exp)) {

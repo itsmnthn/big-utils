@@ -31,7 +31,7 @@ it('shortenDecimals', () => {
   expect(shortenDecimals('67.992', 1, true)).toEqual('67.9')
 })
 
-it('removes tailing zero in fraction', () => {
+it('removes trailing zeros in fraction', () => {
   expect(trimTrailingZeros('299.')).toMatchInlineSnapshot('"299"')
   expect(trimTrailingZeros('1.69000')).toMatchInlineSnapshot('"1.69"')
   expect(trimTrailingZeros('1000.3')).toMatchInlineSnapshot('"1000.3"')
@@ -52,7 +52,6 @@ it('adds comma to a number or amount string', () => {
   expect(formatWithComma(-10000.235)).toMatchInlineSnapshot('"-10,000.235"')
   expect(formatWithComma(-235)).toMatchInlineSnapshot('"-235"')
 
-  expect(formatWithComma('235')).toMatchInlineSnapshot('"235"')
   expect(formatWithComma('235')).toMatchInlineSnapshot('"235"')
   expect(formatWithComma('0.235')).toMatchInlineSnapshot('"0.235"')
   expect(formatWithComma('.23512142')).toMatchInlineSnapshot('"0.23512142"')

@@ -29,8 +29,12 @@ export function calcTotalPrice(
   const u = BigInt(units) // Allow negative units
   const p = bigAbs(BigInt(unitPrice)) // Price is always a positive magnitude
 
-  if (u === BIG_ZERO || p === BIG_ZERO || unitDecimals === 0) {
+  if (u === BIG_ZERO || p === BIG_ZERO) {
     return BIG_ZERO
+  }
+
+  if (unitDecimals <= 0) {
+    throw new RangeError('unitDecimals must be a non-negative integer')
   }
 
   const divisor = bigPow10(unitDecimals)
@@ -52,7 +56,7 @@ export function calcTotalPrice(
  *
  * @example
  * // $10.00 total price / 2 units = $5.00 unit price
- * calcUnitPrice('1000', '200000000', 2, 8) // returns 500n
+ * calcUnitPrice('10000000', '200000000', 2, 8) // returns 5000000n
  */
 export function calcUnitPrice(
   totalPrice: string | bigint,
@@ -64,8 +68,12 @@ export function calcUnitPrice(
   const tp = bigAbs(BigInt(totalPrice))
   const u = bigAbs(BigInt(units))
 
-  if (tp === BIG_ZERO || u === BIG_ZERO || unitDecimals === 0) {
+  if (tp === BIG_ZERO || u === BIG_ZERO) {
     return BIG_ZERO
+  }
+
+  if (unitDecimals <= 0) {
+    throw new RangeError('unitDecimals must be a non-negative integer')
   }
 
   // The priceDecimals for totalPrice and the output unitPrice cancel out,
@@ -100,8 +108,12 @@ export function calcUnits(
   const tp = BigInt(totalPrice) // Allow negative total price
   const up = bigAbs(BigInt(unitPrice)) // Price is always a positive magnitude
 
-  if (tp === BIG_ZERO || up === BIG_ZERO || unitDecimals === 0) {
+  if (tp === BIG_ZERO || up === BIG_ZERO) {
     return BIG_ZERO
+  }
+
+  if (unitDecimals <= 0) {
+    throw new RangeError('unitDecimals must be a non-negative integer')
   }
 
   // The priceDecimals for totalPrice and unitPrice cancel each other out.

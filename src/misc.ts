@@ -50,30 +50,37 @@ export function getTimestampedID() {
 /**
  * Formats a time object to a string with days, hours, minutes, and seconds.
  *
- * @param time - The time object with days, hours, minutes, and seconds. Defaults to 0.
- * @param time.days - The number of days.
- * @param time.hours - The number of hours.
- * @param time.mins - The number of minutes.
- * @param time.secs - The number of seconds.
- * @param negative - Whether to allow negative results. Defaults to false.
+ * @param time - The time object with days, hours, minutes, and seconds.
+ * @param time.days - The number of days. Defaults to 0.
+ * @param time.hours - The number of hours. Defaults to 0.
+ * @param time.mins - The number of minutes. Defaults to 0.
+ * @param time.secs - The number of seconds. Defaults to 0.
+ * @param negative - If true, allows for a negative result. A single '-' sign is prepended
+ * to the entire string if *any* of the time components are negative. Defaults to false.
  *
- * @returns The formatted time string.
+ * @returns The formatted time string, or an empty string if any component is negative
+ * and the `negative` parameter is false.
  *
  * @example
- * formatTime({ days: 1, hours: 2, mins: 3, secs: 4 }) // '1d 2h 3m 4s'
- * formatTime({ days: 1, hours: 2, mins: 3, secs: 4 }, true) // '-1d 2h 3m 4s'
- * formatTime({ days: 0, hours: 0, mins: 3, secs: 4 }) // '3m 4s'
- * formatTime({ days: 0, hours: 0, mins: 0, secs: 4 }) // '4s'
+ * formatTime({ days: 1, hours: 2, mins: 3, secs: 4 })      // '1d 2h 3m 4s'
+ * formatTime({ days: -1, hours: 2, mins: 3, secs: 4 }, true) // '-1d 2h 3m 4s'
+ * formatTime({ days: 0, hours: 0, mins: 3, secs: 4 })      // '3m 4s'
+ * formatTime({ days: 0, hours: 0, mins: 0, secs: 4 })      // '4s'
+ * formatTime({ days: -1, hours: -2 }, true)                // '-1d 2h'
+ * formatTime({ days: -1, hours: 2 })                       // ''
  */
 export function formatTime(
   { days = 0, hours = 0, mins = 0, secs = 0 }: { days?: number, hours?: number, mins?: number, secs?: number },
   negative = false,
 ): string {
-  // if it's negative and negative is not allowed, return empty string
-  if (!negative && (days < 0 || hours < 0 || mins < 0 || secs < 0))
-    return ''
+  const hasNegativeComponent = days < 0 || hours < 0 || mins < 0 || secs < 0
 
-  const sign = (negative && (days < 0 || hours < 0 || mins < 0 || secs < 0)) ? '-' : ''
+  // If any component is negative and 'negative' is not allowed, return an empty string.
+  if (hasNegativeComponent && !negative) {
+    return ''
+  }
+
+  const sign = hasNegativeComponent ? '-' : ''
 
   let timeString = ''
   timeString += days ? `${Math.abs(days)}d ` : ''

@@ -82,8 +82,8 @@ describe('bigPow10', () => {
   it('accepts bigint exponent and truncates number exponent', () => {
     expect(bigPow10(5n)).toBe(100000n)
     // Math.trunc behavior: 3.9 -> 3
-    expect(bigPow10(3.9 as unknown as number)).toBe(1000n)
-    expect(bigPow10(-0.4 as unknown as number)).toBe(1n) // trunc(-0.4)=0 → 10^0
+    expect(bigPow10(3.9)).toBe(1000n)
+    expect(bigPow10(-0.4)).toBe(1n) // trunc(-0.4)=0 → 10^0
   })
   it('monotonic increase with exponent', () => {
     expect(bigPow10(2)).toBe(100n)
@@ -93,7 +93,7 @@ describe('bigPow10', () => {
   it('throws for invalid ranges', () => {
     expect(() => bigPow10(-1)).toThrow(/≥ 0/)
     expect(() => bigPow10(2001)).toThrow(/≤ 2000/)
-    expect(() => bigPow10(9999999999 as unknown as number)).toThrow(/≤ 2000/)
+    expect(() => bigPow10(9999999999)).toThrow(/≤ 2000/)
   })
 })
 

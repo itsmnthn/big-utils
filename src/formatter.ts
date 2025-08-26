@@ -22,7 +22,7 @@ export function formatNumberCompact(
   if (typeof value === 'string')
     value = Number(value)
 
-  if (value < 10_000) {
+  if (Number(value) < 10_000) {
     // plain formatting, no compact
     return new Intl.NumberFormat(locale, { ...options, notation: 'standard' }).format(value)
   }
@@ -69,9 +69,10 @@ export function formatWithComma(
 
   // validate digits
   if (!/^\d+$/.test(intPartRaw || '0') || (fracPart !== undefined && !/^\d+$/.test(fracPart))) {
-    // throw new TypeError('amount string must be a valid numeric literal')
-    console.error(new TypeError('amount string must be a valid numeric literal'))
-    return amount // return as it is for invalid input
+    if (intPartRaw?.startsWith('<') || intPartRaw?.startsWith('>')) {
+      return amount
+    }
+    throw new TypeError('amount string must be a valid numeric literal')
   }
 
   // format integer with Intl using BigInt to avoid precision loss

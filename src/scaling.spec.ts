@@ -210,8 +210,11 @@ describe('bigAlignScales — success cases', () => {
     const r1 = bigAlignScales(a, aScale, b, bScale, ROUND_MODES.HALF_AWAY_ZERO) // 1.3 vs 1.2
     expect(r1.a).toBe(125n)
     expect(r1.b).toBe(120n)
-    const r2 = bigAlignScales(a, aScale, b, bScale, ROUND_MODES.HALF_EVEN)
+    expect(r1.scale).toBe(2)
+    const r2 = bigAlignScales(a, aScale, b, bScale, ROUND_MODES.HALF_EVEN) // 1.3 vs 1.2
     expect(r2.a).toBe(125n)
+    expect(r2.b).toBe(120n)
+    expect(r2.scale).toBe(2)
   })
 })
 

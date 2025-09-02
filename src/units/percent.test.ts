@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import { bigScale } from '../scaling/index'
 import {
+  calcBigPercentFrom,
   calcPercentFrom,
   calcPercentOf,
   decreaseByPercent,
@@ -45,12 +46,40 @@ describe('calcPercentOf', () => {
 // =====================================================================
 // calcPercentFrom
 // =====================================================================
-describe('calcPercentFrom', () => {
+describe('calcPercentFromNumber (for display)', () => {
+  it('should return a number for a standard percentage', () => {
+    // 50 is 25% of 200
+    const result = calcPercentFrom(50, 200)
+    expect(result).toEqual(25)
+  })
+
+  it('should handle percentages over 100%', () => {
+    // 300 is 150% of 200
+    const result = calcPercentFrom(300, 200)
+    expect(result).toEqual(150)
+  })
+
+  it('should handle fractional percentages with specified precision', () => {
+    // 1 is ~33.33% of 3
+    const result = calcPercentFrom(1, 3, 4) // Ask for 4 decimal places
+    expect(result).toEqual(33.3333)
+  })
+
+  it('should handle zero partAmount', () => {
+    const result = calcPercentFrom(0, 100)
+    expect(result).toEqual(0)
+  })
+})
+
+// =====================================================================
+// calcBigPercentFrom
+// =====================================================================
+describe('calcBigPercentFrom', () => {
   it('calculates the correct percentage', () => {
     // 50 is 25% of 200
     const part = bigScale(50, 8)
     const total = bigScale(200, 8)
-    const result = calcPercentFrom(part, total)
+    const result = calcBigPercentFrom(part, total)
     expect(result).toBe(bigScale(25, 4)) // Percentages are scaled to 4 decimals
   })
 
@@ -58,7 +87,7 @@ describe('calcPercentFrom', () => {
     // 250 is 125% of 200
     const part = bigScale(250, 6)
     const total = bigScale(200, 6)
-    const result = calcPercentFrom(part, total)
+    const result = calcBigPercentFrom(part, total)
     expect(result).toBe(bigScale(125, 4))
   })
 
@@ -66,13 +95,13 @@ describe('calcPercentFrom', () => {
     // -10 is -5% of 200
     const part = bigScale(-10, 8)
     const total = bigScale(200, 8)
-    const result = calcPercentFrom(part, total)
+    const result = calcBigPercentFrom(part, total)
     expect(result).toBe(bigScale(-5, 4))
   })
 
   it('handles zero inputs', () => {
-    expect(calcPercentFrom(0n, bigScale(10, 6))).toBe(0n)
-    expect(calcPercentFrom(bigScale(10, 6), 0n)).toBe(0n)
+    expect(calcBigPercentFrom(0n, bigScale(10, 6))).toBe(0n)
+    expect(calcBigPercentFrom(bigScale(10, 6), 0n)).toBe(0n)
   })
 })
 
@@ -85,6 +114,8 @@ describe('increaseByPercent', () => {
     const amount = bigScale(1200, 8)
     const result = increaseByPercent(amount, 23)
     expect(result).toBe(bigScale(1476, 8))
+
+    expect(increaseByPercent(BigInt(2e8), 5)).toBe(BigInt(21e7)) // 2 -> 2.1
   })
 
   it('increases a negative amount by a percentage', () => {
@@ -106,6 +137,8 @@ describe('decreaseByPercent', () => {
     const amount = bigScale(1000, 8)
     const result = decreaseByPercent(amount, 25)
     expect(result).toBe(bigScale(750, 8))
+
+    expect(decreaseByPercent(BigInt(2e8), 5)).toBe(BigInt(19e7)) // 2 -> 1.9
   })
 
   it('decreases a negative amount by a percentage', () => {
@@ -135,6 +168,8 @@ describe('multiplyByFactor', () => {
     expect(multiplyByFactor(amount, 2.5)).toBe(bigScale(625, 8))
     expect(multiplyByFactor(amount, 1)).toBe(amount)
     expect(multiplyByFactor(amount, 0)).toBe(0n)
+    expect(multiplyByFactor(2, 2)).toBe(4n)
+    expect(multiplyByFactor(100, 3)).toBe(300n)
   })
 
   it('multiplies a negative amount by a factor', () => {
@@ -153,6 +188,7 @@ describe('divideByFactor', () => {
   it('divides a negative amount by a factor', () => {
     const amount = bigScale(-250, 8)
     expect(divideByFactor(amount, 4)).toBe(bigScale(-62.5, 8))
+    expect(divideByFactor(300, 3)).toBe(100n)
   })
 
   it('throws an error for a non-positive divisor', () => {

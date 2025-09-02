@@ -1,7 +1,8 @@
 import type { AnyNumber } from '../arithmetic/index'
 import { bigMulDivTrunc } from '../arithmetic/index'
 import { bigPow10 } from '../core/index'
-import { bigScale } from '../scaling/index'
+import { bigScale, bigUnscale } from '../scaling/index'
+import { trimTrailingZeros } from '../utils'
 import { BIG_ZERO } from '../utils/zro'
 
 // A percentage or multiplier is internally represented with 4 decimals of precision.
@@ -46,9 +47,38 @@ export function calcPercentOf(
  *
  * @example
  * // 50 is what percent of 200? -> 25%
- * calcPercentFrom(50_00000000n, 200_00000000n) // returns 250000n (25.0000)
+ * calcPercentFrom(50_00000000n, 200_00000000n) // returns (25.0000)
  */
 export function calcPercentFrom(
+  partAmount: AnyNumber,
+  totalAmount: AnyNumber,
+  decimals: number = 2,
+
+): number {
+  const part = BigInt(partAmount)
+  const total = BigInt(totalAmount)
+
+  if (part === BIG_ZERO || total === BIG_ZERO) {
+    return 0
+  }
+
+  const percent = bigMulDivTrunc(part, ONE_HUNDRED_PERCENT, total)
+  return Number(trimTrailingZeros(bigUnscale(percent, PRECISION_SCALE, decimals)))
+}
+
+/**
+ * Calculates what percentage one amount is of a total amount.
+ * The result is a scaled BigInt. Use `unScale` to format for display.
+ *
+ * @param partAmount The partial amount, scaled by `amountDecimals`.
+ * @param totalAmount The total amount, scaled by `amountDecimals`.
+ * @returns The percentage, scaled by `PRECISION_SCALE`.
+ *
+ * @example
+ * // 50 is what percent of 200? -> 25%
+ * calcBigPercentFrom(50_00000000n, 200_00000000n) // returns 250000n (25.0000)
+ */
+export function calcBigPercentFrom(
   partAmount: AnyNumber,
   totalAmount: AnyNumber,
 ): bigint {

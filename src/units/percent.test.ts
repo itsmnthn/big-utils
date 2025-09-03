@@ -57,6 +57,9 @@ describe('calcPercentFromNumber (for display)', () => {
     // 300 is 150% of 200
     const result = calcPercentFrom(300, 200)
     expect(result).toEqual(150)
+
+    expect(calcPercentFrom(11665962006784n, 18704454701357n)).toEqual(62.36)
+    expect(calcPercentFrom(961138873493n, 1209310852777n)).toEqual(79.47)
   })
 
   it('should handle fractional percentages with specified precision', () => {
@@ -170,6 +173,7 @@ describe('multiplyByFactor', () => {
     expect(multiplyByFactor(amount, 0)).toBe(0n)
     expect(multiplyByFactor(2, 2)).toBe(4n)
     expect(multiplyByFactor(100, 3)).toBe(300n)
+    expect(multiplyByFactor(BigInt(1e6), 2)).toBe(BigInt(2e6))
   })
 
   it('multiplies a negative amount by a factor', () => {

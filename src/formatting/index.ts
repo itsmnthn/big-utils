@@ -21,7 +21,7 @@ import { BIG_ZERO } from '../utils/zro'
 export function formatNumberCompact(
   value: number | string | bigint,
   options: Intl.NumberFormatOptions = { maximumFractionDigits: 2, notation: 'compact', compactDisplay: 'short' },
-  locale?: string,
+  locale: string = 'en-US',
 ): string {
   if (typeof value === 'string')
     value = Number(value)
@@ -224,9 +224,10 @@ export function formatAmountCompact(
   const valueUnScaled = unScale(value, decimals)
 
   if (bigAbs(base) >= scale(minValue, decimals)) {
+    const shortened = shortenDecimals(valueUnScaled, displayDecimals, minNum)
     return {
       base,
-      display: shortenDecimals(formatNumberCompact(valueUnScaled), displayDecimals, minNum),
+      display: formatNumberCompact(shortened),
       formatted: valueUnScaled,
     }
   }

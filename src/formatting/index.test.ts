@@ -156,4 +156,10 @@ describe('formatAmountCompact', () => {
     expect(result.formatted).toBe('0')
     expect(result.base).toBe(0n)
   })
+  it('should handle big correctly', () => {
+    const result = formatAmountCompact(10670481461952n, 8)
+    expect(result.display).toBe('106.7K')
+    expect(result.formatted).toBe('106704.81461952')
+    expect(result.base).toBe(10670481461952n)
+  })
 })

@@ -64,7 +64,7 @@ describe('calcUnitPrice — correctness across scales & magnitudes', () => {
             // Expect calcUnitPrice(TP, U) to return P (magnitude, always ≥ 0)
             expect(calcUnitPrice(TP, U, ud, pd)).toBe(P)
             expect(calcUnitPrice(3000000n, 69646998n, 8, 6)).toBe(4307436n)
-            expect(calcUnitPrice(69646998n, 3000000n,  6, 8)).toBe(23215666n)
+            expect(calcUnitPrice(69646998n, 3000000n, 6, 8)).toBe(23215666n)
 
             // Negative inputs are absolutized internally → still P
             expect(calcUnitPrice(-TP, U, ud, pd)).toBe(P)

@@ -48,7 +48,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "release": "bumpp package.json",
-    "prepare": "husky || true"
+    "prepare": "husky || true",
+    "prepublish": "tsdown"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^5.2.1",
